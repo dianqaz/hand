@@ -21,33 +21,13 @@ if (shouldClear) {
 const centerX = width / 2;
 const centerY = height / 2;
 
-let bounceAvg = 0;
-
-if (isPlaying) {
-  if (hasRealData && dataArray) {
-    let highSum = 0;
-    const startBin = Math.floor(dataArray.length * 0.5);
-    const endBin = Math.floor(dataArray.length * 0.85);
-    let binCount = endBin - startBin;
-    
-    for (let b = startBin; b < endBin; b++) {
-        highSum += dataArray[b];
-    }
-    bounceAvg = binCount > 0 ? (highSum / binCount) : 0;
-    bounceAvg = Math.min(255, bounceAvg * 1.5);
-  } else {
-    bounceAvg = Math.abs(Math.sin(time * Math.PI * 2) * 50 + Math.sin(time * 8.3) * 50);
-  }
-}
-
-let imgAngle = isPlaying ? time * 0.5 : 0;
-let baseRadius = Math.min(width, height) * 0.28;
 let maxOutLength = Math.min(width, height) * 0.20;
 let barCount = 90;
 
-// --- MODIFIKASI: Menghitung lebar mendatar alih-alih keliling lingkaran ---
-let drawableWidth = (width / 2) - baseRadius - 20; // Sisa ruang horizontal setelah gambar tengah
-if (drawableWidth < 10) drawableWidth = 10; // Fallback jika layar terlalu kecil
+// Ruang horizontal dari tengah layar ke tepi pinggir layar
+let drawableWidth = (width / 2) - 20; 
+if (drawableWidth < 10) drawableWidth = 10; 
+
 let barSpacing = drawableWidth / barCount;
 let barWidth = barSpacing * 0.7;
 
@@ -61,12 +41,11 @@ function getColor(normalizedY) {
   return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
 }
 
-// --- MODIFIKASI: Fungsi gambar bar diubah menjadi vertikal (mengarah ke atas dari garis tengah) ---
 function drawVerticalBar(x, y, inLen, outLen, w, color) {
   let startX = x;
   let startY = y + inLen;
   let endX = x;
-  let endY = y - outLen; // Bar mengarah ke atas (Y negatif)
+  let endY = y - outLen; // Bar mengarah ke atas
 
   ctx.beginPath();
   ctx.moveTo(startX, startY);
@@ -105,37 +84,14 @@ for (let i = 0; i < barCount; i++) {
   let normalizedY = (Math.sin(-Math.PI / 2 + (ratio * Math.PI)) + 1) / 2;
   let color = getColor(normalizedY);
 
-  // --- MODIFIKASI: Mengatur posisi bar menjauh secara horizontal ke kiri & kanan ---
-  let xOffset = baseRadius + (i * barSpacing);
+  // Menentukan titik X mulai murni dari tengah (0) menyebar ke pinggir
+  let xOffset = i * barSpacing;
 
-  // Sisi Kanan
+  // Render Sisi Kanan
   drawVerticalBar(centerX + xOffset, centerY, inLength, outLength, barWidth, color);
 
-  // Sisi Kiri
+  // Render Sisi Kiri
   if (i > 0 && i < barCount) {
     drawVerticalBar(centerX - xOffset, centerY, inLength, outLength, barWidth, color);
   }
-}
-
-// Ring border
-ctx.globalCompositeOperation = 'source-over';
-ctx.beginPath();
-ctx.arc(centerX, centerY, baseRadius, 0, Math.PI * 2);
-ctx.strokeStyle = '#050212';
-ctx.lineWidth = 4;
-ctx.shadowBlur = 0;
-ctx.stroke();
-
-// Center image drawing
-if (imgElement && imgElement.complete) {
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(imgAngle);
-  
-  let pulseScale = 1 + (bounceAvg / 255) * 0.35;
-  ctx.scale(pulseScale, pulseScale);
-  
-  let imgSize = baseRadius * 1.8;
-  ctx.drawImage(imgElement, -imgSize/2, -imgSize/2, imgSize, imgSize);
-  ctx.restore();
 }
