@@ -77,7 +77,15 @@ for (let i = 0; i < barCount; i++) {
   
   let powerValue = Math.pow(normalizedValue, 1.4);
   let idle = isPlaying ? (Math.sin(i * 0.2 + time * 3) * 3 + 3) : 2;
-  let outLength = (powerValue * maxOutLength) + idle;
+  
+  // --- BAGIAN YANG DITAMBAHKAN ---
+  // Membuat faktor taper: 1 di tengah (i=0), 0 di ujung paling kanan/kiri (i=barCount-1)
+  // Kurva pangkat 1.2 digunakan agar turunnya terlihat lebih natural dan mengerucut tajam di akhir
+  let taperRatio = i / (barCount - 1);
+  let taper = Math.pow(1 - taperRatio, 1.2); 
+  
+  // Kalikan outLength dan idle dengan taper agar ujung paling akhir tingginya benar-benar 0 (habis)
+  let outLength = ((powerValue * maxOutLength) + idle) * taper;
   let inLength = 0;
 
   let ratio = i / barCount;
