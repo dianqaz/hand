@@ -55,7 +55,7 @@ function getColor(normalizedY) {
   let r = 200 + (0 - 200) * normalizedY;
   let g = 0 + (220 - 0) * normalizedY;
   let b = 255;
-  return \`rgb(\${Math.round(r)}, \${Math.round(g)}, \${Math.round(b)})\`;
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
 }
 
 function drawBiDirectionalBar(cx, cy, angle, radius, inLen, outLen, w, color) {
@@ -118,17 +118,3 @@ ctx.strokeStyle = '#050212';
 ctx.lineWidth = 4;
 ctx.shadowBlur = 0;
 ctx.stroke();
-
-// Center image drawing
-if (imgElement && imgElement.complete) {
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(imgAngle);
-  
-  let pulseScale = 1 + (bounceAvg / 255) * 0.35;
-  ctx.scale(pulseScale, pulseScale);
-  
-  let imgSize = baseRadius * 1.8;
-  ctx.drawImage(imgElement, -imgSize/2, -imgSize/2, imgSize, imgSize);
-  ctx.restore();
-}
